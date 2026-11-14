@@ -13,6 +13,8 @@ venv/
 *.log
 *.db
 *.sqlite3
+!bookworld_reference.db
+!bookworld_final.db
 
 # Notebooks
 .ipynb_checkpoints/
