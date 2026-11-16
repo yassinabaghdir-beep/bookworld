@@ -1,6 +1,5 @@
 pandas
-sqlite3
 requests
-BeautifulSoup
+beautifulsoup4
 flask
 python-dotenv
