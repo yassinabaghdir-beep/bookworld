@@ -1,7 +1,6 @@
 # BookWorld – Pipeline de données et API des ventes par pays
 
-Projet final du bootcamp Data Analyst DataBird (RNCP37827 – Bloc 01)
-
+Projet final du bootcamp Data Analyst DataBird (RNCP37827 – Bloc 01) – Yassin Abaghdir, 2026.
 
 ---
 
@@ -43,7 +42,7 @@ Le fichier des ventes contient le prénom et le nom des clients. La pipeline **s
 | `bookworld_final.db` | La base finale créée par la pipeline (sans noms ni prénoms) |
 | `schema_final.sql` | La structure de la base finale : ses tables et les liens entre elles |
 | `queries.sql` | Deux exemples de requêtes SQL sur la base finale : un filtre (ventes du canal WEB) et un enrichissement (ventes reliées aux livres, pays et canaux) |
-| `bookworld_schema.png` | Le schéma de la base finale (modèle en étoile) |
+| `bookworld.png` | Le schéma de la base finale (modèle en étoile) |
 | `requirements.txt` | La liste des librairies Python à installer |
 | `.env.example` | Un modèle pour créer le fichier `.env` qui contient la clé de l'API |
 | `.gitignore` | La liste des fichiers à ne pas publier sur GitHub (notamment `.env`, qui contient la clé) |
@@ -92,16 +91,22 @@ git clone git@github.com:yassinabaghdir-beep/bookworld.git
 
 ## Étape 2 – Se placer dans le dossier du projet
 
-Les commandes suivantes doivent être lancées **depuis le dossier du projet**.
+Les commandes suivantes doivent **obligatoirement** être lancées **depuis le dossier du projet**.
 
-- **Windows** : ouvrez le dossier `bookworld` dans l'Explorateur de fichiers, faites un clic droit dans une zone vide → **Ouvrir dans le Terminal**.
+> **Important :** `pipeline.py` et `api.py` cherchent leurs fichiers (`sales_raw.csv`, `bookworld_reference.db`, `bookworld_final.db`) **dans le dossier où se trouve le terminal**, et non dans le dossier où se trouvent les scripts. Si le terminal est placé ailleurs, les fichiers sont introuvables et la pipeline s'arrête, ou une base vide est créée au mauvais endroit.
+
+- **Windows** : ouvrez le dossier du projet dans l'Explorateur de fichiers, faites un clic droit dans une zone vide → **Ouvrir dans le Terminal**.
 - **Ou**, dans un terminal déjà ouvert, utilisez la commande `cd` (« changer de dossier ») suivie du chemin du dossier, par exemple :
 
 ```bash
 cd Downloads/bookworld
 ```
 
-Pour vérifier que vous êtes au bon endroit, tapez `ls` : la liste doit contenir `pipeline.py`, `api.py`, etc.
+> Si vous avez téléchargé le ZIP, le dossier s'appelle sans doute `bookworld-main` : adaptez la commande (`cd Downloads/bookworld-main`).
+
+Pour vérifier que vous êtes au bon endroit, tapez `ls` : la liste doit contenir `pipeline.py`, `api.py`, `sales_raw.csv` et `bookworld_reference.db`.
+
+**Ne lancez pas** les scripts en indiquant leur chemin depuis un autre dossier (par exemple `python Downloads/bookworld/pipeline.py`) : placez-vous d'abord dans le dossier, puis tapez `python pipeline.py`.
 
 ---
 
@@ -126,7 +131,7 @@ Le terminal affiche le déroulement de chaque étape. À la fin, vous devez nota
 - **0** vente sans prix, sans taux de change ou sans pays ;
 - **8 pays** dans le résultat.
 
-Le fichier `bookworld_final.db` est alors créé (ou mis à jour) dans le dossier. La pipeline peut être relancée autant de fois que nécessaire : la base est recréée à chaque fois.
+Le fichier `bookworld_final.db` est alors créé (ou mis à jour) dans le dossier où se trouve le terminal, c'est-à-dire le dossier du projet si l'étape 2 a été suivie. La pipeline peut être relancée autant de fois que nécessaire : la base est recréée à chaque fois.
 
 En cas de problème sur une source (fichier absent, site ou API inaccessible), la pipeline s'arrête et affiche un message qui indique la source en cause.
 
@@ -153,6 +158,8 @@ L'API est protégée par une clé que vous choisissez vous-même. Elle est stock
 ---
 
 ## Étape 6 – Lancer l'API
+
+Toujours **depuis le dossier du projet** (voir l'étape 2) :
 
 ```bash
 python api.py
@@ -222,7 +229,8 @@ Dans le terminal où tourne l'API, appuyez sur **Ctrl + C**.
 | Message | Cause | Solution |
 |---|---|---|
 | `python n'est pas reconnu…` | Python n'est pas installé, ou la case « Add Python to PATH » n'a pas été cochée | Réinstaller Python en cochant la case |
-| `No such file or directory` / fichier introuvable | Le terminal n'est pas dans le dossier du projet | Refaire l'étape 2 |
+| `No such file or directory` / fichier introuvable | Le terminal n'est pas dans le dossier du projet | Refaire l'étape 2, puis relancer la commande |
+| `no such table` (l'API répond par une erreur) | L'API a été lancée hors du dossier du projet : elle a créé une base vide à cet endroit | Supprimer ce `bookworld_final.db` vide, refaire l'étape 2, puis relancer `python api.py` |
 | `ModuleNotFoundError` | Les librairies ne sont pas installées | Refaire l'étape 3 |
 | `KeyError: 'API_KEY'` | Le fichier `.env` est absent ou mal nommé | Refaire l'étape 5 |
 | `Clé API invalide ou absente` | La clé envoyée est différente de celle du fichier `.env` | Vérifier que les deux clés sont identiques |
