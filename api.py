@@ -6,8 +6,7 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 API_KEY = os.environ["API_KEY"]
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "bookworld_final.db")
+DB_PATH = "bookworld_final.db"
 
 app = Flask(__name__)
 
@@ -17,7 +16,7 @@ def health():
         return jsonify(error="Cle API invalide ou absente"), 401
     return jsonify(status="ok")
 
-@app.route("/sales_by_country")
+@app.route("/sales-by-country")
 def sales_by_country():
     if request.headers.get("X-API-Key") != API_KEY:
         return jsonify(error="Cle API invalide ou absente"), 401
