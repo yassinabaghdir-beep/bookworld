@@ -1,4 +1,3 @@
-import os
 import re
 import sqlite3
 
@@ -7,15 +6,14 @@ import requests
 from bs4 import BeautifulSoup
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-SALES_PATH = os.path.join(BASE_DIR, "sales_raw.csv")
-REF_DB_PATH = os.path.join(BASE_DIR, "bookworld_reference.db")
-FINAL_DB_PATH = os.path.join(BASE_DIR, "bookworld_final.db")
-SCHEMA_PATH = os.path.join(BASE_DIR, "schema_final.sql")
+SALES_PATH = "sales_raw.csv"
+REF_DB_PATH = "bookworld_reference.db"
+FINAL_DB_PATH = "bookworld_final.db"
+SCHEMA_PATH = "schema_final.sql"
 
 BOOKS_URL = "https://books.toscrape.com/"
 FRANKFURTER_URL = "https://api.frankfurter.app"
+
 
 
 def extract():
@@ -35,6 +33,8 @@ def extract():
         raise RuntimeError(f"Erreur lecture bookworld_reference.db : {e}")
     print("Pays :", countries.shape)
 
+
+
     try:
         resp = requests.get(BOOKS_URL, timeout=10)
         resp.raise_for_status()
@@ -49,6 +49,8 @@ def extract():
         books.append({"title": title, "price_gbp": price})
     df_books = pd.DataFrame(books)
     print("Livres scrapés :", len(df_books))
+
+
 
     debut = df_sales["order_date"].min()
     fin = df_sales["order_date"].max()
@@ -67,6 +69,8 @@ def extract():
     print("Taux récupérés :", len(taux), "jours ouvrés")
 
     return df_sales, countries, channels, category_rules, df_books, taux
+
+
 
 
 def transform(df_sales, countries, df_books, taux):
@@ -88,6 +92,8 @@ def transform(df_sales, countries, df_books, taux):
     df["revenue_eur"] = df["revenue_gbp"] * df["taux_gbp_eur"]
     print("Ventes sans taux :", df["taux_gbp_eur"].isna().sum())
 
+
+
     df = df.merge(countries[["country_code", "country_name"]], how="left", on="country_code")
     df["country_name"] = df["country_name"].fillna("Netherlands")
     print("Ventes sans pays :", df["country_name"].isna().sum())
@@ -105,6 +111,7 @@ def transform(df_sales, countries, df_books, taux):
     print("Colonnes de sales :", sales.columns.tolist())
 
     return sales, sales_by_country
+
 
 
 def load(sales, sales_by_country, countries, channels):
@@ -133,6 +140,7 @@ def load(sales, sales_by_country, countries, channels):
     print("Base finale créée : bookworld_final.db")
     print("books :", len(books), "| countries :", len(countries), "| channels :", len(channels))
     print("sales :", len(sales), "| sales_by_country :", len(sales_by_country))
+
 
 
 if __name__ == "__main__":
