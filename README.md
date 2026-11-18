@@ -235,3 +235,54 @@ Dans le terminal où tourne l'API, appuyez sur **Ctrl + C**.
 | `KeyError: 'API_KEY'` | Le fichier `.env` est absent ou mal nommé | Refaire l'étape 5 |
 | `Clé API invalide ou absente` | La clé envoyée est différente de celle du fichier `.env` | Vérifier que les deux clés sont identiques |
 | Le deuxième terminal n'obtient pas de réponse | L'API n'est pas lancée | Vérifier que `python api.py` tourne dans le premier terminal |
+
+## Documentation de l'API
+L'API est développée avec Flask. Elle lit la base `bookworld_final.db` et renvoie les résultats au format JSON.
+- **Adresse de base** : `http://127.0.0.1:5000` (une fois `python api.py` lancé)
+- **Authentification** : chaque requête doit contenir l'en-tête `X-API-Key` avec la clé définie dans le fichier `.env` (`API_KEY=...`)
+### Résumé des routes
+| Route | Méthode | Entrée attendue | Sortie | Erreurs possibles |
+|---|---|---|---|---|
+| `/health` | GET | En-tête `X-API-Key` | `{"status": "ok"}` | 401, 404, 405 |
+| `/sales-by-country` | GET | En-tête `X-API-Key` | Liste des ventes agrégées par pays (JSON) | 401, 404, 405 |
+### GET /health
+Vérifie que l'API fonctionne.
+Réponse (200) :
+```json
+{"status": "ok"}
+```
+### GET /sales-by-country
+Renvoie le contenu de la table `sales_by_country`, trié du chiffre d'affaires en euros le plus élevé au plus faible (8 pays).
+Champs renvoyés pour chaque pays :
+| Champ | Description |
+|---|---|
+| `country_code` | Code du pays (ex. FR) |
+| `country_name` | Nom du pays |
+| `total_orders` | Nombre de commandes |
+| `total_quantity` | Nombre de livres vendus |
+| `total_revenue_gbp` | Chiffre d'affaires en livres sterling |
+| `total_revenue_eur` | Chiffre d'affaires en euros (taux à la date de chaque vente) |
+
+Exemple de réponse (200) :
+```json
+[
+  {
+    "country_code": "FR",
+    "country_name": "France",
+    "total_orders": 56,
+    "total_quantity": 130,
+    "total_revenue_gbp": 4718.74,
+    "total_revenue_eur": 3979.2
+  }
+]
+```
+### Codes d'erreur
+| Code | Signification |
+|---|---|
+| 401 | Clé API absente ou invalide : `{"error": "Cle API invalide ou absente"}` |
+| 404 | Route inexistante (ex. `/sales_by_country` avec des underscores au lieu de tirets) |
+| 405 | Méthode non autorisée (ex. une requête POST au lieu de GET) |
+### Tester l'API (PowerShell)
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:5000/health" -Headers @{"X-API-Key"="VOTRE_CLE"}
+Invoke-RestMethod -Uri "http://127.0.0.1:5000/sales-by-country" -Headers @{"X-API-Key"="VOTRE_CLE"}
