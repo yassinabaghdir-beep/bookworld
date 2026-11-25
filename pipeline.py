@@ -93,9 +93,10 @@ def transform(df_sales, countries, df_books, taux):
     print("Ventes sans taux :", df["taux_gbp_eur"].isna().sum())
 
 
+    nl = pd.DataFrame([{"country_code": "NL", "country_name": "Netherlands", "currency_code": "EUR", "vat_rate": 21.0, "region": "Europe", "is_active": None}])
+    countries = pd.concat([countries, nl], ignore_index=True)
 
     df = df.merge(countries[["country_code", "country_name"]], how="left", on="country_code")
-    df["country_name"] = df["country_name"].fillna("Netherlands")
     print("Ventes sans pays :", df["country_name"].isna().sum())
 
     sales_by_country = df.groupby(["country_code", "country_name"]).agg(
@@ -110,18 +111,13 @@ def transform(df_sales, countries, df_books, taux):
     sales = df.drop(columns=["customer_first_name", "customer_last_name"])
     print("Colonnes de sales :", sales.columns.tolist())
 
-    return sales, sales_by_country
-
-
-
-def load(sales, sales_by_country, countries, channels):
     books = sales[["book_id", "book_name", "price_gbp"]].drop_duplicates()
+    sales = sales.drop(columns=["book_name", "country_name"])
 
-    countries = countries[["country_code", "country_name"]]
-    nl = pd.DataFrame([{"country_code": "NL", "country_name": "Netherlands"}])
-    countries = pd.concat([countries, nl], ignore_index=True)
+    return sales, sales_by_country, countries, books
 
-    sales = sales.drop(columns=["book_name", "price_gbp", "country_name"])
+
+def load(sales, sales_by_country, countries, channels, books):
 
     try:
         conn = sqlite3.connect(FINAL_DB_PATH)
@@ -145,5 +141,5 @@ def load(sales, sales_by_country, countries, channels):
 
 if __name__ == "__main__":
     df_sales, countries, channels, category_rules, df_books, taux = extract()
-    sales, sales_by_country = transform(df_sales, countries, df_books, taux)
-    load(sales, sales_by_country, countries, channels)
+    sales, sales_by_country, countries, books = transform(df_sales, countries, df_books, taux)
+    load(sales, sales_by_country, countries, channels, books)
